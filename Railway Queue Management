@@ -1,0 +1,380 @@
+
+// Source code is decompiled from a .class file using FernFlower decompiler.
+import java.util.Iterator;
+import java.util.List;
+import java.util.Scanner;
+public class Main {
+private static final int TOTAL_SEATS = 5;
+private static final RailwayQueueManager manager = new RailwayQueueManager(5);
+private static final Scanner sc;
+private static final String RESET = "\u001b[0m";
+private static final String GREEN = "\u001b[32m";
+private static final String RED = "\u001b[31m";
+private static final String CYAN = "\u001b[36m";
+private static final String YELLOW = "\u001b[33m";
+public Main() {
+}
+public static void main(String[] var0) {
+while(true) {
+System.out.println("\u001b[36m\n--- Railway Waiting Queue Management System ---\u001b[0m");
+System.out.println("Available Seats: \u001b[32m" + manager.getAvailableSeats() + "\u001b[0m / 5");
+System.out.println("Waiting List: \u001b[33m" + manager.getWaitingCount() + "\u001b[0m");
+System.out.println("1. Book Seat");
+System.out.println("2. Cancel Booking");
+System.out.println("3. Show Confirmed Passengers");
+System.out.println("4. Show Waiting List");
+System.out.println("5. Search Passenger");
+System.out.println("6. Edit Passenger Details");
+System.out.println("7. Export Passenger List to CSV");
+System.out.println("8. Exit");
+System.out.print("Enter choice: ");
+int var1 = getIntInput();
+switch (var1) {
+case 1:
+bookSeat();
+break;
+case 2:
+cancelBooking();
+break;
+case 3:
+showConfirmed();
+break;
+case 4:
+showWaiting();
+break;
+case 5:
+searchPassenger();
+break;
+case 6:
+editPassenger();
+break;
+case 7:
+exportCSV();
+break;
+case 8:
+System.out.println("Exiting...");
+return;
+default:
+System.out.println("\u001b[31mInvalid choice.\u001b[0m");
+}
+}
+}
+private static int getIntInput() {
+while(true) {
+try {
+int var0 = Integer.parseInt(sc.nextLine());
+return var0;
+} catch (Exception var1) {
+System.out.print("\u001b[31mInvalid input. Enter a number: \u001b[0m");
+}
+}
+}
+private static void bookSeat() {
+System.out.print("Enter Name: ");
+String var0 = sc.nextLine().trim();
+if (var0.isEmpty()) {
+System.out.println("\u001b[31mName cannot be empty.\u001b[0m");
+} else {
+System.out.print("Enter Age: ");
+int var1 = getIntInput();
+if (var1 >= 0 && var1 <= 120) {
+System.out.print("Enter Gender: ");
+String var2 = sc.nextLine().trim();
+if (var2.isEmpty()) {
+System.out.println("\u001b[31mGender cannot be empty.\u001b[0m");
+} else {
+System.out.print("Enter Contact Number: ");
+String var3 = sc.nextLine().trim();
+if (!var3.matches("\\d{10,15}")) {
+System.out.println("\u001b[31mInvalid contact number.\u001b[0m");
+} else {
+Passenger var4 = new Passenger(var0, var1, var2, var3, "");
+boolean var5 = manager.bookSeat(var4);
+if (var5) {
+System.out.println("\u001b[32mSeat booked successfully! Status: Confirmed. Ticket: " + var4.getTicketNumber() + "\u001b[0m");
+} else {
+System.out.println("\u001b[33mAll seats full. Added to waiting list. Status: Waiting. Ticket: " + var4.getTicketNumber() + "\u001b[0m");
+}
+}
+ else {
+System.out.println("\u001b[31mInvalid age.\u001b[0m");
+}
+}
+}
+private static void cancelBooking() {
+System.out.print("Enter Contact Number to cancel: ");
+String var0 = sc.nextLine().trim();
+boolean var1 = manager.cancelBooking(var0);
+if (var1) {
+System.out.println("\u001b[32mBooking cancelled and waiting list updated if applicable.\u001b[0m");
+} else {
+System.out.println("\u001b[31mNo confirmed booking found with that contact number.\u001b[0m");
+}
+}
+private static void showConfirmed() {
+List var0 = manager.getConfirmedList();
+System.out.println("\u001b[36m\n--- Confirmed Passengers ---\u001b[0m");
+if (var0.isEmpty()) {
+System.out.println("No confirmed passengers.");
+} else {
+System.out.printf("%-8s %-15s %-5s %-8s %-15s %-10s\n", "Ticket", "Name", "Age", "Gender", "Contact", "Status");
+Iterator var1 = var0.iterator();
+while(var1.hasNext()) {
+Passenger var2 = (Passenger)var1.next();
+System.out.println(var2);
+}
+}
+}
+private static void showWaiting() {
+List var0 = manager.getWaitingList();
+System.out.println("\u001b[33m\n--- Waiting List ---\u001b[0m");
+if (var0.isEmpty()) {
+System.out.println("No passengers in waiting list.");
+} else {
+System.out.printf("%-8s %-15s %-5s %-8s %-15s %-10s\n", "Ticket", "Name", "Age", "Gender", "Contact", "Status");
+Iterator var1 = var0.iterator();
+while(var1.hasNext()) {
+Passenger var2 = (Passenger)var1.next();
+System.out.println(var2);
+}
+}
+}
+private static void searchPassenger() {
+System.out.println("Search by: 1. Ticket Number 2. Name");
+int var0 = getIntInput();
+if (var0 == 1) {
+System.out.print("Enter Ticket Number: ");
+int var1 = getIntInput();
+Passenger var2 = manager.searchByTicket(var1);
+if (var2 != null) {
+System.out.printf("%-8s %-15s %-5s %-8s %-15s %-10s\n", "Ticket", "Name", "Age", "Gender", "Contact", "Status");
+System.out.println(var2);
+} else {
+System.out.println("\u001b[31mNo passenger found with that ticket number.\u001b[0m");
+}
+} else if (var0 == 2) {
+System.out.print("Enter Name: ");
+String var5 = sc.nextLine().trim();
+List var6 = manager.searchByName(var5);
+if (!var6.isEmpty()) {
+System.out.printf("%-8s %-15s %-5s %-8s %-15s %-10s\n", "Ticket", "Name", "Age", "Gender", "Contact", "Status");
+Iterator var3 = var6.iterator();
+while(var3.hasNext()) {
+Passenger var4 = (Passenger)var3.next();
+System.out.println(var4);
+}
+} else {
+System.out.println("\u001b[31mNo passenger found with that name.\u001b[0m");
+}
+} else {
+System.out.println("\u001b[31mInvalid option.\u001b[0m");
+}
+}
+private static void editPassenger() {
+System.out.print("Enter Ticket Number to edit: ");
+int var0 = getIntInput();
+Passenger var1 = manager.searchByTicket(var0);
+if (var1 == null) {
+System.out.println("\u001b[31mNo passenger found with that ticket number.\u001b[0m");
+} else {
+System.out.print("Enter New Name (leave blank to keep current): ");
+String var2 = sc.nextLine().trim();
+if (var2.isEmpty()) {
+var2 = var1.getName();
+}
+System.out.print("Enter New Age (or -1 to keep current): ");
+int var3 = getIntInput();
+if (var3 < 0 || var3 > 120) {
+var3 = var1.getAge();
+}
+System.out.print("Enter New Gender (leave blank to keep current): ");
+String var4 = sc.nextLine().trim();
+if (var4.isEmpty()) {
+var4 = var1.getGender();
+}
+System.out.print("Enter New Contact (leave blank to keep current): ");
+String var5 = sc.nextLine().trim();
+if (var5.isEmpty()) {
+var5 = var1.getContact();
+}
+boolean var6 = manager.editPassenger(var0, var2, var3, var4, var5);
+if (var6) {
+System.out.println("\u001b[32mPassenger details updated.\u001b[0m");
+} else {
+System.out.println("\u001b[31mFailed to update passenger.\u001b[0m");
+}
+}
+}
+private static void exportCSV() {
+System.out.print("Enter filename to export (e.g., passengers.csv): ");
+String var0 = sc.nextLine().trim();
+try {
+manager.exportToCSV(var0);
+System.out.println("\u001b[32mExported to " + var0 + "\u001b[0m");
+} catch (Exception var2) {
+System.out.println("\u001b[31mFailed to export: " + var2.getMessage() + "\u001b[0m");
+}
+}
+static {
+sc = new Scanner(System.in);
+}
+}
+
+// Source code is decompiled from a .class file using FernFlower decompiler.
+import java.util.concurrent.atomic.AtomicInteger;
+public class Passenger {
+private static final AtomicInteger ticketCounter = new AtomicInteger(1000);
+private final int ticketNumber;
+private String name;
+private int age;
+private String gender;
+private String contact;
+private String status;
+public Passenger(String var1, int var2, String var3, String var4, String var5) {
+this.ticketNumber = ticketCounter.getAndIncrement();
+this.name = var1;
+this.age = var2;
+this.gender = var3;
+this.contact = var4;
+this.status = var5;
+}
+public int getTicketNumber() {
+return this.ticketNumber;
+}
+public String getName() {
+return this.name;
+}
+public int getAge() {
+return this.age;
+}
+public String getGender() {
+return this.gender;
+}
+public String getContact() {
+return this.contact;
+}
+public String getStatus() {
+return this.status;
+}
+public void setStatus(String var1) {
+this.status = var1;
+}
+public void setName(String var1) {
+this.name = var1;
+}
+public void setAge(int var1) {
+this.age = var1;
+}
+public void setGender(String var1) {
+this.gender = var1;
+}
+public void setContact(String var1) {
+this.contact = var1;
+}
+public String toCSV() {
+return this.ticketNumber + "," + this.name + "," + this.age + "," + this.gender + "," + this.contact + "," + this.status;
+}
+public String toString() {
+return String.format("%-8d %-15s %-5d %-8s %-15s %-10s", this.ticketNumber, this.name, this.age, this.gender, this.contact, this.status);
+}
+}
+RailwayOueueManager.java
+import java.util.*;
+public class RailwayQueueManager {
+private final int totalSeats;
+private final List<Passenger> confirmedList;
+private final Queue<Passenger> waitingQueue;
+public RailwayQueueManager(int totalSeats) {
+this.totalSeats = totalSeats;
+this.confirmedList = new ArrayList<>();
+this.waitingQueue = new LinkedList<>();
+}
+public boolean bookSeat(Passenger passenger) {
+if (confirmedList.size() < totalSeats) {
+passenger.setStatus("Confirmed");
+confirmedList.add(passenger);
+return true;
+} else {
+passenger.setStatus("Waiting");
+waitingQueue.add(passenger);
+return false;
+}
+}
+public boolean cancelBooking(String contact) {
+Iterator<Passenger> iterator = confirmedList.iterator();
+while (iterator.hasNext()) {
+Passenger p = iterator.next();
+if (p.getContact().equals(contact)) {
+iterator.remove();
+if (!waitingQueue.isEmpty()) {
+Passenger next = waitingQueue.poll();
+next.setStatus("Confirmed");
+confirmedList.add(next);
+}
+return true;
+}
+}
+return false;
+}
+public Passenger searchByTicket(int ticketNumber) {
+for (Passenger p : confirmedList) {
+if (p.getTicketNumber() == ticketNumber)
+return p;
+}
+for (Passenger p : waitingQueue) {
+if (p.getTicketNumber() == ticketNumber)
+return p;
+}
+return null;
+}
+public List<Passenger> searchByName(String name) {
+List<Passenger> result = new ArrayList<>();
+for (Passenger p : confirmedList) {
+if (p.getName().equalsIgnoreCase(name))
+result.add(p);
+}
+for (Passenger p : waitingQueue) {
+if (p.getName().equalsIgnoreCase(name))
+result.add(p);
+}
+return result;
+}
+public boolean editPassenger(int ticketNumber, String name, int age, String gender, String contact) {
+Passenger p = searchByTicket(ticketNumber);
+if (p != null) {
+p.setName(name);
+p.setAge(age);
+p.setGender(gender);
+p.setContact(contact);
+return true;
+}
+return false;
+}
+public int getAvailableSeats() {
+return totalSeats - confirmedList.size();
+}
+public int getWaitingCount() {
+return waitingQueue.size();
+}
+public List<Passenger> getConfirmedList() {
+return Collections.unmodifiableList(confirmedList);
+}
+public List<Passenger> getWaitingList() {
+return new ArrayList<>(waitingQueue);
+}
+public void exportToCSV(String filename) throws Exception {
+List<Passenger> all = new ArrayList<>();
+all.addAll(confirmedList);
+all.addAll(waitingQueue);
+java.io.FileWriter fw = new java.io.FileWriter(filename);
+fw.write("Ticket,Name,Age,Gender,Contact,Status\n");
+for (Passenger p : all) {
+fw.write(p.toCSV() + "\n");
+}
+fw.close();
+}
+}
+// Utility class for any future helper methods (optional, for extensibility)
+public class Utils {
+// Add static helper methods here if needed
+}
